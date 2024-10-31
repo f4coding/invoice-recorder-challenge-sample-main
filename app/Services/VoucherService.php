@@ -46,6 +46,10 @@ class VoucherService
         $receiverDocumentNumber = (string) $xml->xpath('//cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID')[0];
 
         $totalAmount = (string) $xml->xpath('//cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount')[0];
+        $series = (string) $xml->xpath('//cbc:ID')[0];
+        $number = (string) $xml->xpath('//cbc:ID')[1];
+        $voucherType = (string) $xml->xpath('//cbc:InvoiceTypeCode')[0];
+        $currency = (string) $xml->xpath('//cbc:DocumentCurrencyCode')[0];
 
         $voucher = new Voucher([
             'issuer_name' => $issuerName,
@@ -57,6 +61,10 @@ class VoucherService
             'total_amount' => $totalAmount,
             'xml_content' => $xmlContent,
             'user_id' => $user->id,
+            'series' => $series,
+            'number' => $number,
+            'voucher_type' => $voucherType,
+            'currency' => $currency,
         ]);
         $voucher->save();
 

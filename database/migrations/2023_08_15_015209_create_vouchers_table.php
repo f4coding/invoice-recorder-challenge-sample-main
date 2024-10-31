@@ -19,6 +19,10 @@ return new class extends Migration
             $table->decimal('total_amount', 8, 2);
             $table->longText('xml_content');
             $table->uuid('user_id');
+            $table->string('series')->nullable();
+            $table->string('number')->nullable();
+            $table->string('voucher_type')->nullable();
+            $table->string('currency')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
