@@ -13,18 +13,24 @@ class VouchersCreatedMail extends Mailable
     use Queueable;
     use SerializesModels;
 
-    public array $vouchers;
+    public array $successfulVouchers;
+    public array $failedVouchers;
     public User $user;
 
-    public function __construct(array $vouchers, User $user)
+    public function __construct(array $successfulVouchers, array $failedVouchers, User $user)
     {
-        $this->vouchers = $vouchers;
+        $this->successfulVouchers = $successfulVouchers;
+        $this->failedVouchers = $failedVouchers;
         $this->user = $user;
     }
 
     public function build(): self
     {
         return $this->view('emails.comprobante')
-            ->with(['comprobantes' => $this->vouchers, 'user' => $this->user]);
+            ->with([
+                'successfulVouchers' => $this->successfulVouchers,
+                'failedVouchers' => $this->failedVouchers,
+                'user' => $this->user,
+            ]);
     }
 }

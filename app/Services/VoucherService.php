@@ -8,6 +8,7 @@ use App\Models\Voucher;
 use App\Models\VoucherLine;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use SimpleXMLElement;
+use App\Jobs\ProcessVouchersJob;
 
 class VoucherService
 {
@@ -21,17 +22,10 @@ class VoucherService
      * @param User $user
      * @return Voucher[]
      */
-    public function storeVouchersFromXmlContents(array $xmlContents, User $user): array
-    {
-        $vouchers = [];
-        foreach ($xmlContents as $xmlContent) {
-            $vouchers[] = $this->storeVoucherFromXmlContent($xmlContent, $user);
-        }
-
-        VouchersCreated::dispatch($vouchers, $user);
-
-        return $vouchers;
-    }
+    public function storeVouchersFromXmlContents(array $xmlContents, User $user): void
+{
+    ProcessVouchersJob::dispatch($xmlContents, $user);
+}
 
     public function storeVoucherFromXmlContent(string $xmlContent, User $user): Voucher
     {
