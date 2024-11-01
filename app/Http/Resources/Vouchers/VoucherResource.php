@@ -1,40 +1,44 @@
 <?php
 
-namespace Tests\Feature;
+namespace App\Http\Resources\Vouchers;
 
-use App\Models\User;
+use App\Http\Resources\Users\UserResource;
+use App\Http\Resources\VoucherLines\VoucherLineResource;
 use App\Models\Voucher;
-use Tests\TestCase;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class XmlContentTest extends TestCase
+class VoucherResource extends JsonResource
 {
-    public function test_it_can_register_voucher_with_series_number_type_and_currency()
+    /**
+     * @var Voucher
+     */
+    public $resource;
+
+    public function toArray(Request $request): array
     {
-        // Obtener un usuario existente
-        $user = User::first();
+        return [
+            'id' => $this->resource->id,
+            'issuer_name' => $this->resource->issuer_name,
+            'issuer_document_type' => $this->resource->issuer_document_type,
+            'issuer_document_number' => $this->resource->issuer_document_number,
+            'receiver_name' => $this->resource->receiver_name,
+            'receiver_document_type' => $this->resource->receiver_document_type,
+            'receiver_document_number' => $this->resource->receiver_document_number,
+            'total_amount' => $this->resource->total_amount,
+            'series' => $this->resource->series,
+            'number' => $this->resource->number,
+            'voucher_type' => $this->resource->voucher_type,
+            'currency' => $this->resource->currency,
 
-        // Si no hay usuarios en la base de datos, lanza una excepción
-        if (!$user) {
-            $this->fail('No hay usuarios en la base de datos.');
-        }
-
-        // Cargar el contenido del archivo XML
-        $xmlContent = file_get_contents(base_path('tests/fixtures/sample_voucher.xml'));
-
-        // Enviar la solicitud POST con el contenido del archivo XML
-        $response = $this->actingAs($user)->postJson('/api/v1/vouchers', [
-            'xml_content' => $xmlContent,
-        ]);
-
-        // Verificar que la respuesta tenga un estado 201 (creado)
-        $response->assertStatus(201);
-
-        // Verificar que los datos se hayan guardado en la base de datos
-        $this->assertDatabaseHas('vouchers', [
-            'series' => 'F001',
-            'number' => '123456',
-            'voucher_type' => '01',
-            'currency' => 'PEN',
-        ]);
+            'user' => $this->whenLoaded(
+                'user',
+                fn() => UserResource::make($this->resource->user),
+            ),
+            'lines' => $this->whenLoaded(
+                'lines',
+                fn() => VoucherLineResource::collection($this->resource->lines),
+            ),
+        ];
     }
 }
